@@ -7,13 +7,10 @@ export const sendInitInfo = ({size, number}) =>{
         },
         body: JSON.stringify({size, number})
     })
-    // .then(value => value.json())
-    .then(value => {
-        console.log(value);
-    })
+    .then(value => value.json())
 }
 
 export const getMatriXData = () =>{
-    return fetch("https://jsonplaceholder.typicode.com/todos")
+    return fetch("/")
         .then(value => value.json())
 }
