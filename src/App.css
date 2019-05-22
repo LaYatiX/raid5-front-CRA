@@ -35,22 +35,22 @@
 
 @keyframes to-delete {
   from {
-    transform: rotate3d(0,1, 0, 0deg);
+    transform: rotate3d(0,0, 0, 0deg);
   }
   to {
-    transform: rotate3d(0,1, 0, 360deg);
+    transform: rotate3d(1,1, 1, 360deg);
   }
 }
 
 .NORMAL{
-  background-color: #9dff00;
+  background-color: #e0e0e0;
 }
 
 .CROSS{
-  background-color: #ffe000;
+  background-color: #4ae5ec;
 }
 
 .TODELETE{
   background-color: #ff2300;
-  animation: App-logo-spin infinite 3s linear;
+  animation: to-delete 1s linear;
 }

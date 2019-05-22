@@ -14,6 +14,16 @@ const style = {
     }
 }
 
+const Flex = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+`;
+
+const Column = styled.div`
+    max-width: 30px;
+`;
+
 const Block = styled.span`
     padding: 5px;
     margin: 5px;
@@ -30,20 +40,18 @@ class App extends Component {
 
     constructor(props) {
         super(props);
-        // this.setDiskSize = this.setDiskSize.bind(this);
-        // this.setDiskCount = this.setDiskCount.bind(this);
-        // this.getData();
         this.state = {
-            size: 10,
-            number: 10,
+            size: 6,
+            number: 4,
             data: []
         }
     }
 
     componentWillMount() {
-        this.setState({
-            data: this.random()
-        })
+        this.sendInit()
+        // this.setState({
+        //     data: this.random()
+        // })
     }
 
     random = () => {
@@ -62,8 +70,23 @@ class App extends Component {
     }
 
     sendInit = (event) => {
-        event.preventDefault();
-        sendInitInfo(this.state);
+        event && event.preventDefault();
+        sendInitInfo(this.state).then(value => {
+            console.log(value)
+
+            const data = value.disks.map((a, index) => {
+                return a.array.map((b, index2) => {
+                    return {
+                        data: b,
+                        type: index !== index2%this.state.number ? "NORMAL" : "CROSS"
+                    }
+                })
+            })
+            console.log(data)
+            this.setState({
+                data
+            })
+        })
     };
 
     setDiskSize = (event) => {
@@ -71,9 +94,7 @@ class App extends Component {
         this.setState(()=>({
             size: event.target.value
         }), ()=>{
-            this.setState({
-                data: this.random()
-            })
+            this.sendInit()
         })
     };
     setDiskCount = (event) => {
@@ -81,23 +102,37 @@ class App extends Component {
         this.setState(()=>({
             number: event.target.value
         }), ()=>{
-            this.setState({
-                data: this.random()
-            })
+            this.sendInit()
         })
 
     };
     getData = () => {
         getMatriXData().then(value => {
-            this.setState(() => ({data: value}))
+            this.setState(() => ({data: value.disks}))
+            console.log(value)
         })
     };
 
     destruction = ()=>{
         let data = this.state.data;
-        const random = Math.floor(Math.random() * this.state.number +1);
-        data.forEach(()=>{
+        const random = Math.floor(Math.random() * this.state.number);
+        data.forEach((el, index)=>{
+            if(index === random){
+                el.type = "TODELETE"
+                el.data = "X"
+            }
+            // el.forEach((el2, index2)=>{
+            //
+            // })
+        })
+        this.setState({
+            data
+        })
+    };
 
+    regenerate = ()=>{
+        this.setState({
+            data: this.random()
         })
     };
 
@@ -115,16 +150,18 @@ class App extends Component {
                     <Button variant={'contained'} onClick={this.sendInit}>Inicjuj</Button>
                 </form>
                 <br/>
-                {data && data.map(((value, index) => (
-                    <div key={index}>
-                        {value && value.map(((value2, index2) => (
+                <Flex>
+                {data && data.map(((array, index) => (
+                    <Column key={index}>
+                        {array && array.map(((value2, index2) => (
                             <Block key={index2} className={value2.type}>{value2.data}</Block>
                         )))}
-                        <br/>
-                    </div>
+                    </Column>
                 )))}
+                </Flex>
                 <br/>
                 <Button variant={'contained'} onClick={this.destruction}>Siej znieszczenie</Button>
+                <Button variant={'contained'} onClick={this.regenerate}>Powstań z popiołów</Button>
             </div>
         );
     }
