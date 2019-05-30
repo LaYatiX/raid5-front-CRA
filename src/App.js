@@ -4,6 +4,7 @@ import {getMatriXData, sendInitInfo} from "./components/raid-service";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
+import dominika from './dominika.jpg'
 
 const style = {
     margin: {
@@ -32,9 +33,9 @@ const Block = styled.span`
     transition: all 300ms ease-in-out;
 `;
 
-// const BlockCross = styled(Block)`
-//     background-color: #ffe000;
-// `;
+// const Dominika = styled.div`
+//   background-image: url(dominika);
+// `
 
 class App extends Component {
 
@@ -117,13 +118,15 @@ class App extends Component {
         let data = this.state.data;
         const random = Math.floor(Math.random() * this.state.number);
         data.forEach((el, index)=>{
-            if(index === random){
-                el.type = "TODELETE"
-                el.data = "X"
-            }
-            // el.forEach((el2, index2)=>{
-            //
-            // })
+            el.forEach((el2, index2)=>{
+                if(index === random){
+                    if(el2.type === "CROSS")
+                        el2.type = "TODELETE CROSS";
+                    else
+                        el2.type = "TODELETE"
+                    el2.data = "X"
+                }
+            })
         })
         this.setState({
             data
@@ -131,8 +134,18 @@ class App extends Component {
     };
 
     regenerate = ()=>{
+        // this.sendInit();
+        let data = this.state.data;
+        data.forEach((el, index)=>{
+            el.forEach((el2, index2)=>{
+                if(el2.type === "TODELETE CROSS")
+                    el2.type = "REGENERATED CROSS";
+                else
+                    el2.type = "REGENERATED";
+            })
+        })
         this.setState({
-            data: this.random()
+            data
         })
     };
 
@@ -140,11 +153,13 @@ class App extends Component {
         const {data} = this.state;
         return (
             <div className="App">
+                {/*<img src={dominika}/>*/}
                 <form style={{display: "block"}}>
                     <TextField style={style.margin} label={'Rozmiar dysku'} type={'number'}
                                value={this.state.size} onChange={this.setDiskSize}/>
                     <br/>
-                    <TextField style={style.margin} label={'Ilość dysków'} type={'number'}
+                    <TextField st
+                               yle={style.margin} label={'Ilość dysków'} type={'number'}
                                value={this.state.number} onChange={this.setDiskCount}/>
                     <br/>
                     <Button variant={'contained'} onClick={this.sendInit}>Inicjuj</Button>

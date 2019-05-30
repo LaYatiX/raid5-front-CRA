@@ -42,15 +42,35 @@
   }
 }
 
-.NORMAL{
-  background-color: #e0e0e0;
+@keyframes regenerate-anim {
+  0%  {
+    transform: rotate3d(0,0, 0, 0deg);
+    background-color: #ff2300;
+  }
+  25%  {
+    transform: rotate3d(1,1, 1, 360deg);
+    background-color: #76ea24;
+  }
+  100%{
+    transform: rotate3d(1,1, 1, 360deg);
+    background-color: #e0e0e0;
+  }
 }
 
-.CROSS{
-  background-color: #4ae5ec;
+.NORMAL{
+  background-color: #e0e0e0;
 }
 
 .TODELETE{
   background-color: #ff2300;
   animation: to-delete 1s linear;
+}
+
+.REGENERATED{
+  background-color: #e0e0e0;
+  animation: regenerate-anim 4s linear;
+}
+
+.CROSS{
+  background-color: #4ae5ec;
 }
