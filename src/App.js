@@ -4,15 +4,12 @@ import {getMatriXData, sendInitInfo} from "./components/raid-service";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
-import dominika from './dominika.jpg'
 
 const style = {
     margin: {
         margin: "10px"
     },
-    block: {
-
-    }
+    block: {}
 }
 
 const Flex = styled.div`
@@ -22,7 +19,7 @@ const Flex = styled.div`
 `;
 
 const Column = styled.div`
-    max-width: 30px;
+    max-width: 50px;
 `;
 
 const Block = styled.span`
@@ -30,29 +27,53 @@ const Block = styled.span`
     margin: 5px;
     display: inline-flex;
     border-radius: 100%;
-    transition: all 300ms ease-in-out;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    transition: transform 200ms linear;
+    animation: rotate 4s linear infinite;
+    box-shadow: inset 2px 0 8px 0.6px rgba(0,0,0,0.6);
+    transform-style: preserve-3d;
+    &:after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      content: '';
+      border-radius: 50%;
+      box-shadow: -8px 1.5px 8px 1px rgba(0,0,0,.7) inset;
+    }
+    &:before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      content: '';
+      opacity: .2;
+      border-radius: 50%;
+      background: radial-gradient(circle at 10px 10px, #fff, #000);
+    }
 `;
 
-// const Dominika = styled.div`
-//   background-image: url(dominika);
-// `
 
 class App extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            size: 6,
-            number: 4,
+            size: 5,
+            number: 5,
             data: []
         }
     }
 
     componentWillMount() {
-        this.sendInit()
-        // this.setState({
-        //     data: this.random()
-        // })
+        // this.sendInit()
+        this.setState({
+            data: this.random()
+        })
     }
 
     random = () => {
@@ -63,8 +84,8 @@ class App extends Component {
             const a2 = Array.apply(null, Array(sizeY));
             return a2.map((b, index2) => {
                 return {
-                    data: Math.floor(Math.random()* 10 % 2),
-                    type: index%this.state.number !== index2 ? "NORMAL" : "CROSS"
+                    data: Math.floor(Math.random() * 10 % 2),
+                    type: index % this.state.number !== index2 ? "NORMAL" : "CROSS"
                 }
             })
         })
@@ -79,7 +100,7 @@ class App extends Component {
                 return a.array.map((b, index2) => {
                     return {
                         data: b,
-                        type: index !== index2%this.state.number ? "NORMAL" : "CROSS"
+                        type: index !== index2 % this.state.number ? "NORMAL" : "CROSS"
                     }
                 })
             })
@@ -92,17 +113,17 @@ class App extends Component {
 
     setDiskSize = (event) => {
         event.persist();
-        this.setState(()=>({
+        this.setState(() => ({
             size: event.target.value
-        }), ()=>{
+        }), () => {
             this.sendInit()
         })
     };
     setDiskCount = (event) => {
         event.persist();
-        this.setState(()=>({
+        this.setState(() => ({
             number: event.target.value
-        }), ()=>{
+        }), () => {
             this.sendInit()
         })
 
@@ -114,13 +135,13 @@ class App extends Component {
         })
     };
 
-    destruction = ()=>{
+    destruction = () => {
         let data = this.state.data;
         const random = Math.floor(Math.random() * this.state.number);
-        data.forEach((el, index)=>{
-            el.forEach((el2, index2)=>{
-                if(index === random){
-                    if(el2.type === "CROSS")
+        data.forEach((el, index) => {
+            el.forEach((el2, index2) => {
+                if (index === random) {
+                    if (el2.type === "CROSS")
                         el2.type = "TODELETE CROSS";
                     else
                         el2.type = "TODELETE"
@@ -133,12 +154,12 @@ class App extends Component {
         })
     };
 
-    regenerate = ()=>{
+    regenerate = () => {
         // this.sendInit();
         let data = this.state.data;
-        data.forEach((el, index)=>{
-            el.forEach((el2, index2)=>{
-                if(el2.type === "TODELETE CROSS")
+        data.forEach((el, index) => {
+            el.forEach((el2, index2) => {
+                if (el2.type === "TODELETE CROSS")
                     el2.type = "REGENERATED CROSS";
                 else
                     el2.type = "REGENERATED";
@@ -166,13 +187,13 @@ class App extends Component {
                 </form>
                 <br/>
                 <Flex>
-                {data && data.map(((array, index) => (
-                    <Column key={index}>
-                        {array && array.map(((value2, index2) => (
-                            <Block key={index2} className={value2.type}>{value2.data}</Block>
-                        )))}
-                    </Column>
-                )))}
+                    {data && data.map(((array, index) => (
+                        <Column key={index}>
+                            {array && array.map(((value2, index2) => (
+                                <Block key={index2} className={value2.type}>{value2.data}</Block>
+                            )))}
+                        </Column>
+                    )))}
                 </Flex>
                 <br/>
                 <Button variant={'contained'} onClick={this.destruction}>Siej znieszczenie</Button>
