@@ -1,5 +1,4 @@
 export const sendInitInfo = ({size, number}) =>{
-    console.log(size, number);
     return fetch('/', {
         method: 'POST',
         headers: {
@@ -7,10 +6,14 @@ export const sendInitInfo = ({size, number}) =>{
         },
         body: JSON.stringify({size, number})
     })
-    .then(value => value.json())
-}
+    .then(value => {
+       if(value.status=== 200) return value.json();
+       else return Promise.reject(value.status)
+    })
+    .catch(reason => Promise.reject(reason))
+};
 
 export const getMatriXData = () =>{
     return fetch("/")
         .then(value => value.json())
-}
+};
