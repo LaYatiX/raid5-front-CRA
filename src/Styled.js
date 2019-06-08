@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import {Button} from '@material-ui/core/';
 
 export const Flex = styled.div`
     display: flex;
@@ -21,7 +22,6 @@ export const Block = styled.span`
     width: 20px;
     height: 30px;
     transition: transform 200ms linear;
-    animation: rotate 4s linear infinite;
     box-shadow: inset 2px 0 8px 0.6px rgba(0,0,0,0.6);
     transform-style: preserve-3d;
     &:after {
@@ -45,4 +45,8 @@ export const Block = styled.span`
       border-radius: 50%;
       background: radial-gradient(circle at 10px 10px, #fff, #000);
     }
+`;
+
+export const ButtonMargin = styled(Button)`
+  margin: 0 0.4rem !important;
 `;

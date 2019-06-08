@@ -1,5 +1,5 @@
 export const sendInitInfo = ({size, number}) =>{
-    return fetch('/api/generate', {
+    return fetch('/generate', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -14,13 +14,15 @@ export const sendInitInfo = ({size, number}) =>{
     .catch(reason => Promise.reject(reason))
 };
 
-export const getMatriXData = () =>{
-    return fetch("/")
-        .then(value => value.json())
+export const getMatrixData = () =>{
+    // window.open("/api/save");
+    return fetch(`/save`, {
+        credentials: "include"
+    })
 };
 
-export const getMatrixErrors = (id) =>{
-    return fetch(`/api/destroy?id=${id}`, {
+export const getRegenerateMatrixs = (id) =>{
+    return fetch(`/destroy?id=${id}`, {
         credentials: "include"
     })
     .then(value => {
