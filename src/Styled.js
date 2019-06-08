@@ -48,5 +48,5 @@ export const Block = styled.span`
 `;
 
 export const ButtonMargin = styled(Button)`
-  margin: 0 0.4rem !important;
+  margin: 0.4rem !important;
 `;

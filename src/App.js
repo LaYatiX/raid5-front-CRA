@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {getMatrixData, getRegenerateMatrixs, sendInitInfo} from "./components/raid-service";
+import {getMatrixData, getRegenerateMatrixs, sendFile, sendInitInfo} from "./components/raid-service";
 import TextField from '@material-ui/core/TextField';
 
 import {ErrorBoundary} from "./Error-boundary";
@@ -61,26 +61,37 @@ class App extends Component {
     sendInit = (event) => {
         event && event.preventDefault();
         sendInitInfo(this.state).then(value => {
-            console.log(value);
+            this.mapDataFromServer(value)
+        })
+    };
 
-            const data = value.disks.map((a, index) => {
-                return a.array.map((b, index2) => {
-                    return {
-                        data: b,
-                        type: index !== index2 % this.state.number ? "NORMAL" : "CROSS"
-                    }
-                })
-            });
-            console.log(data);
-            this.setState({
-                data
+    mapDataFromServer = (value) => {
+        const data = value.disks.map((a, index) => {
+            return a.array.map((b, index2) => {
+                return {
+                    data: b,
+                    type: index !== index2 % this.state.number ? "NORMAL" : "CROSS"
+                }
             })
+        });
+        console.log(data);
+        this.setState({
+            data
+        })
+    }
+
+
+    sendFile = (event) => {
+        event && event.preventDefault();
+        const input = document.getElementById('raised-button-file');
+        sendFile(input.files[0]).then((value) => {
+            this.mapDataFromServer(value);
         })
     };
 
     setDiskSize = (event) => {
         const val = +event.target.value;
-        if(val > 100 || val<1 || this.state.number>val) return false;
+        if (val > 100 || val < 1 || this.state.number > val) return false;
         event.persist();
         this.setState(() => ({
             size: +event.target.value
@@ -90,7 +101,7 @@ class App extends Component {
     };
     setDiskCount = (event) => {
         const val = +event.target.value;
-        if(val > 100 || val<3 || this.state.size<val) return false;
+        if (val > 100 || val < 3 || this.state.size < val) return false;
         event.persist();
         this.setState(() => ({
             number: +event.target.value
@@ -108,18 +119,21 @@ class App extends Component {
 
     destruction = () => {
         let {data, ready} = this.state;
-        if(!ready) { this.openSnack(); return }
+        if (!ready) {
+            this.openSnack();
+            return
+        }
         const random = Math.floor(Math.random() * this.state.number);
         this.setState({ready: false});
         getRegenerateMatrixs(random).then(value => {
             const mapRegenerateData = value.map((matrix, mxIndex) => {
-                return matrix.disks.map((disk, index)=> {
+                return matrix.disks.map((disk, index) => {
                     return disk.array.map((a, index2) => {
                         console.log(mxIndex, index, index2);
                         let type = "NORMAL";
-                        if(mxIndex === index2 && index === random) type = "GETREGENERATED";
-                        else if(a === 7) type = "TODELETE";
-                        else if(index === index2 % this.state.number) type = "CROSS";
+                        if (mxIndex === index2 && index === random) type = "GETREGENERATED";
+                        else if (a === 7) type = "TODELETE";
+                        else if (index === index2 % this.state.number) type = "CROSS";
                         return {
                             data: a === 7 ? "X" : a,
                             type
@@ -158,8 +172,8 @@ class App extends Component {
     regenerate = () => {
         let i = 0;
         const {regenerateData} = this.state;
-        const interval = setInterval(()=>{
-            if(i === regenerateData.length-1) {
+        const interval = setInterval(() => {
+            if (i === regenerateData.length - 1) {
                 clearInterval(interval);
                 this.setState({ready: true});
             }
@@ -221,17 +235,20 @@ class App extends Component {
                     <ButtonMargin variant={'contained'} onClick={this.destruction}>Zniszcz dysk</ButtonMargin>
                     <ButtonMargin variant={'contained'} onClick={this.regenerate}>Zregeneruj dysk</ButtonMargin>
                     <hr/>
-                    <ButtonMargin variant={'contained'} onClick={this.download}><a href={'http://localhost:8080/api/save'} rel="noopener noreferrer" target="_blank"> Pobierz macierz</a></ButtonMargin>
+                    <ButtonMargin variant={'contained'} onClick={this.download}><a
+                        href={'http://localhost:8080/api/save'} rel="noopener noreferrer" target="_blank"> Pobierz
+                        macierz</a></ButtonMargin>
                     <input
-                        accept="image/*"
+                        accept="text/plain"
                         className={style.input}
-                        style={{ display: 'none' }}
+                        style={{display: 'none'}}
                         id="raised-button-file"
                         multiple
                         type="file"
+                        onChange={this.sendFile}
                     />
                     <label htmlFor="raised-button-file">
-                        <ButtonMargin variant="raised" component="span" className={style.button}>
+                        <ButtonMargin variant="contained" component="span" className={style.button}>
                             Wyślij macierz
                         </ButtonMargin>
                     </label>
