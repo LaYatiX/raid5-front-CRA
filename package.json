@@ -11,7 +11,7 @@
     "sass-loader": "^7.1.0",
     "styled-components": "^4.2.0"
   },
-  "proxy": "http://localhost:8080",
+  "proxy": "http://192.168.43.5:8055/raid_simulation_BitBucket_war_exploded/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

@@ -7,16 +7,18 @@ export const Flex = styled.div`
 `;
 
 export const Column = styled.div`
-    max-width: 50px;
+    max-width: 35px;
 `;
 
 export const Block = styled.span`
     padding: 5px;
     margin: 5px;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 100%;
     position: relative;
-    width: 30px;
+    width: 20px;
     height: 30px;
     transition: transform 200ms linear;
     animation: rotate 4s linear infinite;
@@ -30,7 +32,7 @@ export const Block = styled.span`
       height: 100%;
       content: '';
       border-radius: 50%;
-      box-shadow: -8px 1.5px 8px 1px rgba(0,0,0,.7) inset;
+      box-shadow: -1px -4.5px 9px 5px rgba(70,0,0,.7) inset;
     }
     &:before {
       position: absolute;

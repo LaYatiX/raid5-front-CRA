@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {getMatriXData, sendInitInfo} from "./components/raid-service";
+import {getMatriXData, getMatrixErrors, sendInitInfo} from "./components/raid-service";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import {ErrorBoundary} from "./Error-boundary";
@@ -27,10 +27,10 @@ class App extends Component {
     }
 
     componentWillMount() {
-        // this.sendInit()
-        this.setState({
-            data: this.random()
-        })
+        this.sendInit()
+        // this.setState({
+        //     data: this.random()
+        // })
     }
 
     random = () => {
@@ -51,7 +51,7 @@ class App extends Component {
     sendInit = (event) => {
         event && event.preventDefault();
         sendInitInfo(this.state).then(value => {
-            console.log(value)
+            console.log(value);
 
             const data = value.disks.map((a, index) => {
                 return a.array.map((b, index2) => {
@@ -60,8 +60,8 @@ class App extends Component {
                         type: index !== index2 % this.state.number ? "NORMAL" : "CROSS"
                     }
                 })
-            })
-            console.log(data)
+            });
+            console.log(data);
             this.setState({
                 data
             })
@@ -71,7 +71,7 @@ class App extends Component {
     setDiskSize = (event) => {
         event.persist();
         this.setState(() => ({
-            size: event.target.value
+            size: +event.target.value
         }), () => {
             this.sendInit()
         })
@@ -79,7 +79,7 @@ class App extends Component {
     setDiskCount = (event) => {
         event.persist();
         this.setState(() => ({
-            number: event.target.value
+            number: +event.target.value
         }), () => {
             this.sendInit()
         })
@@ -95,6 +95,11 @@ class App extends Component {
     destruction = () => {
         let data = this.state.data;
         const random = Math.floor(Math.random() * this.state.number);
+
+        getMatrixErrors(random).then(value => {
+            console.log(value);
+            data = value;
+        });
         data.forEach((el, index) => {
             el.forEach((el2, index2) => {
                 if (index === random) {
