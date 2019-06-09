@@ -27,7 +27,7 @@ export const sendFile = (file) =>{
     })
         .then(value => {
             if(value.status=== 200) return value.json();
-            else return Promise.reject(value.status);
+            else return Promise.reject("Wysłana macierz jest niespójna");
         })
         .catch(reason => Promise.reject(reason))
 };

@@ -88,6 +88,9 @@ class App extends Component {
             this.mapDataFromServer(value);
             this.setState({ready: true, damaged: 0});
             input.value = '';
+        }).catch(reason => {
+            this.openSnack(reason);
+            input.value = '';
         });
     };
 
