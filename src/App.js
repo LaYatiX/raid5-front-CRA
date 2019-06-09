@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {getMatrixData, getRegenerateMatrixs, sendFile, sendInitInfo} from "./components/raid-service";
+import {getMatrixData, destroyMatrix, sendFile, sendInitInfo, recoverMatrix} from "./components/raid-service";
 import TextField from '@material-ui/core/TextField';
 
 import {ErrorBoundary} from "./Error-boundary";
@@ -115,12 +115,6 @@ class App extends Component {
         })
 
     };
-    // getData = () => {
-    //     getMatriXData().then(value => {
-    //         this.setState(() => ({data: value.disks}))
-    //         console.log(value)
-    //     })
-    // };
 
     destruction = () => {
         let {data, ready} = this.state;
@@ -130,26 +124,15 @@ class App extends Component {
         }
         const random = Math.floor(Math.random() * this.state.number);
         this.setState({ready: false});
-        getRegenerateMatrixs(random).then(value => {
-            const mapRegenerateData = value.map((matrix, mxIndex) => {
-                return matrix.disks.map((disk, index) => {
-                    return disk.array.map((a, index2) => {
-                        console.log(mxIndex, index, index2);
-                        let type = "NORMAL";
-                        if (mxIndex === index2 && index === random) type = "GETREGENERATED";
-                        else if (a === 7) type = "TODELETE";
-                        else if (index === index2 % this.state.number) type = "CROSS";
-                        return {
-                            data: a === 7 ? "X" : a,
-                            type
-                        }
-                    });
-                })
-            });
 
-            this.setState(() => ({regenerateData: mapRegenerateData, random}))
+        //Wysłanie informacji do serwera o zniszczeniu macierzy
+        destroyMatrix(random).then(() => {
+            this.setState(() => ({random}))
+        }).catch(reason => {
+           this.openSnack(reason);
         });
 
+        //Ustawienie bloków do animacji
         data.forEach((el, index) => {
             el.forEach((el2, index2) => {
                 if (index === random) {
@@ -163,14 +146,13 @@ class App extends Component {
         });
 
 
-        this.setState({
-            data
-        })
+        this.setState({data})
     };
 
     download = () => {
         getMatrixData();
     };
+
     openSnack = (snackInfo) => {
         this.setState({snackOpen: true, snackInfo });
     };
@@ -181,35 +163,46 @@ class App extends Component {
             this.openSnack('Odzyskanie utraconych danych nie jest możliwe');
             return false;
         }
-        const interval = setInterval(() => {
-            if (i === regenerateData.length - 1) {
-                clearInterval(interval);
-                this.setState({ready: true, damaged: 0});
-            }
-            const data = regenerateData[i++].map((el, index) => {
-                return el.map((el2, index2) => {
-                    if (el2.type === "GETREGENERATED")
-                        el2.type = "REGENERATED";
-                    return el2;
+
+        recoverMatrix().then(value => {
+            const mapRegenerateData = value.map((matrix, mxIndex) => {
+                return matrix.disks.map((disk, index) => {
+                    return disk.array.map((a, index2) => {
+                        console.log(mxIndex, index, index2);
+                        let type = "NORMAL";
+                        if (mxIndex === index2 && index === this.state.random) type = "GETREGENERATED";
+                        else if (a === 7) type = "TODELETE";
+                        else if (index === index2 % this.state.number) type = "CROSS";
+                        return {
+                            data: a === 7 ? "X" : a,
+                            type
+                        }
+                    });
                 })
             });
-            console.log(data, "new")
 
-            this.setState({
-                data
+            this.setState(() => ({regenerateData: mapRegenerateData}), () => {
+                const {regenerateData} = this.state;
+                const interval = setInterval(() => {
+                    if (i === regenerateData.length - 1) {
+                        clearInterval(interval);
+                        this.setState({ready: true, damaged: 0});
+                    }
+                    const data = regenerateData[i++].map((el, index) => {
+                        return el.map((el2, index2) => {
+                            if (el2.type === "GETREGENERATED")
+                                el2.type = "REGENERATED";
+                            return el2;
+                        })
+                    });
+                    console.log(data, "new");
+
+                    this.setState({
+                        data
+                    })
+                }, 1000);
             })
-        }, 1000);
-        //
-        // regenerateData.forEach(data => {
-        //     data.forEach((el, index) => {
-        //         el.forEach((el2, index2) => {
-        //             if (el2.type === "CROSS TODELETE")
-        //                 el2.type = "REGENERATED CROSS";
-        //             else if (el2.type === "TODELETE")
-        //                 el2.type = "REGENERATED";
-        //         })
-        //     })
-        // })
+        });
 
     };
 
@@ -242,7 +235,7 @@ class App extends Component {
                     </Flex>
                     <br/>
                     <ButtonMargin variant={'contained'} onClick={this.destruction}>Zniszcz dysk</ButtonMargin>
-                    <ButtonMargin variant={'contained'} disabled={damaged===0} onClick={this.regenerate}>Zregeneruj dysk</ButtonMargin>
+                    <ButtonMargin variant={'contained'} color="primary" disabled={damaged===0} onClick={this.regenerate}>Zregeneruj dysk</ButtonMargin>
                     <hr/>
                     <ButtonMargin variant={'contained'} onClick={this.download}><a
                         href={'http://localhost:8080/api/save'} rel="noopener noreferrer" target="_blank"> Pobierz
@@ -257,10 +250,13 @@ class App extends Component {
                         onChange={this.sendFile}
                     />
                     <label htmlFor="raised-button-file">
-                        <ButtonMargin variant="contained" component="span" className={style.button}>
+                        <ButtonMargin variant="contained" component="span" color="primary" className={style.button}>
                             Wyślij macierz
                         </ButtonMargin>
                     </label>
+                    <ButtonMargin variant="contained" component="span" color="secondary" className={style.button}>
+                        <a href={'http://localhost:8080/api/raport'} rel="noopener noreferrer" target="_blank">Pobierz raport</a>
+                    </ButtonMargin>
                     <SimpleSnackbar snackOpen={snackOpen} info={snackInfo} close={handleClose}/>
                 </ErrorBoundary>
             </div>

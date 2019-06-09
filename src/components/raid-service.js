@@ -25,11 +25,11 @@ export const sendFile = (file) =>{
         },
         body: data
     })
-        .then(value => {
-            if(value.status=== 200) return value.json();
-            else return Promise.reject("Wysłana macierz jest niespójna");
-        })
-        .catch(reason => Promise.reject(reason))
+    .then(value => {
+        if(value.status=== 200) return value.json();
+        else return Promise.reject("Wysłana macierz jest niespójna");
+    })
+    .catch(reason => Promise.reject(reason))
 };
 
 export const getMatrixData = () =>{
@@ -39,12 +39,22 @@ export const getMatrixData = () =>{
     })
 };
 
-export const getRegenerateMatrixs = (id) =>{
+export const destroyMatrix = (id) =>{
     return fetch(`/destroy?id=${id}`, {
         credentials: "include"
     })
     .then(value => {
-        if(value.status=== 200) return value.json();
-        else return Promise.reject(value.status);
+        if(value.status=== 200) return Promise.resolve("ok");
+        else return Promise.reject("Błąd usuwania");
     })
+};
+
+export const recoverMatrix = () =>{
+    return fetch(`/recover`, {
+        credentials: "include"
+    })
+        .then(value => {
+            if(value.status=== 200) return value.json();
+            else return Promise.reject(value.status);
+        })
 };
