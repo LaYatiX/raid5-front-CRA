@@ -26,6 +26,8 @@ class App extends Component {
         super(props);
         this.state = {
             ready: true,
+            damaged: 0,
+            snackInfo: '',
             size: 5,
             snackOpen: false,
             number: 5,
@@ -38,9 +40,6 @@ class App extends Component {
 
     componentWillMount() {
         this.sendInit()
-        // this.setState({
-        //     data: this.random()
-        // })
     }
 
     random = () => {
@@ -62,7 +61,8 @@ class App extends Component {
         event && event.preventDefault();
         sendInitInfo(this.state).then(value => {
             this.mapDataFromServer(value)
-        })
+        });
+        this.setState({ready: true, damaged: 0});
     };
 
     mapDataFromServer = (value) => {
@@ -86,7 +86,9 @@ class App extends Component {
         const input = document.getElementById('raised-button-file');
         sendFile(input.files[0]).then((value) => {
             this.mapDataFromServer(value);
-        })
+            this.setState({ready: true, damaged: 0});
+            input.value = '';
+        });
     };
 
     setDiskSize = (event) => {
@@ -119,9 +121,9 @@ class App extends Component {
 
     destruction = () => {
         let {data, ready} = this.state;
+        this.setState((prevState) => ({damaged: ++prevState.damaged}));
         if (!ready) {
-            this.openSnack();
-            return
+            this.openSnack('Nie będzie można odzyskać utraconych danych');
         }
         const random = Math.floor(Math.random() * this.state.number);
         this.setState({ready: false});
@@ -166,16 +168,20 @@ class App extends Component {
     download = () => {
         getMatrixData();
     };
-    openSnack = () => {
-        this.setState({snackOpen: true});
+    openSnack = (snackInfo) => {
+        this.setState({snackOpen: true, snackInfo });
     };
     regenerate = () => {
         let i = 0;
-        const {regenerateData} = this.state;
+        const {regenerateData, ready, damaged} = this.state;
+        if (!ready && damaged > 1) {
+            this.openSnack('Odzyskanie utraconych danych nie jest możliwe');
+            return false;
+        }
         const interval = setInterval(() => {
             if (i === regenerateData.length - 1) {
                 clearInterval(interval);
-                this.setState({ready: true});
+                this.setState({ready: true, damaged: 0});
             }
             const data = regenerateData[i++].map((el, index) => {
                 return el.map((el2, index2) => {
@@ -205,7 +211,7 @@ class App extends Component {
     };
 
     render() {
-        const {data, snackOpen} = this.state;
+        const {data, snackOpen, snackInfo, damaged} = this.state;
         const handleClose = () => {
             this.setState({snackOpen: false});
         };
@@ -233,7 +239,7 @@ class App extends Component {
                     </Flex>
                     <br/>
                     <ButtonMargin variant={'contained'} onClick={this.destruction}>Zniszcz dysk</ButtonMargin>
-                    <ButtonMargin variant={'contained'} onClick={this.regenerate}>Zregeneruj dysk</ButtonMargin>
+                    <ButtonMargin variant={'contained'} disabled={damaged===0} onClick={this.regenerate}>Zregeneruj dysk</ButtonMargin>
                     <hr/>
                     <ButtonMargin variant={'contained'} onClick={this.download}><a
                         href={'http://localhost:8080/api/save'} rel="noopener noreferrer" target="_blank"> Pobierz
@@ -252,7 +258,7 @@ class App extends Component {
                             Wyślij macierz
                         </ButtonMargin>
                     </label>
-                    <SimpleSnackbar snackOpen={snackOpen} close={handleClose}/>
+                    <SimpleSnackbar snackOpen={snackOpen} info={snackInfo} close={handleClose}/>
                 </ErrorBoundary>
             </div>
         );

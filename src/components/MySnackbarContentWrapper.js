@@ -10,7 +10,7 @@ import CloseIcon from '@material-ui/icons/Close';
 // }));
 
 function SimpleSnackbar(props) {
-    const {snackOpen, close} = props;
+    const {snackOpen, close, info} = props;
     const closeSnack = () => {
         close();
     };
@@ -27,7 +27,7 @@ function SimpleSnackbar(props) {
                 ContentProps={{
                     'aria-describedby': 'message-id',
                 }}
-                message={<span id="message-id">Nie można wykona akcji</span>}
+                message={<span id="message-id">{info}</span>}
                 action={[
                     <IconButton
                         key="close"
